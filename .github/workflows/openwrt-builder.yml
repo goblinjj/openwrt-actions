@@ -71,15 +71,15 @@ jobs:
     - name: Load custom feeds
       run: |
         cat openwrt/feeds.conf.default
-        cat "---------"
+        echo "---------"
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
         cat openwrt/feeds.conf.default
-        cat "---------"
+        echo "---------"
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
         cat feeds.conf.default
-        cat "---------"
+        echo "---------"
 
     - name: Update feeds
       run: |
