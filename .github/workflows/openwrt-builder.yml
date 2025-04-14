@@ -42,7 +42,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: /workdir/openwrt  # 缓存目录路径
-        key: openwrt-source-${{ hashFiles('feeds.conf.default', 'diy-part1.sh') }}-${{ env.REPO_BRANCH }}
+        key: openwrt-source-${{ hashFiles('diy-part1.sh') }}-${{ env.REPO_BRANCH }}
 
 
     - name: Initialization environment
@@ -67,6 +67,14 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: Save OpenWrt source cache
+    if: steps.cache-openwrt.outputs.cache-hit != 'true'  # 仅在缓存未命中时保存
+    uses: actions/cache@v3
+    with:
+      path: /workdir/openwrt
+      key: openwrt-source-${{ hashFiles('diy-part1.sh') }}-${{ env.REPO_BRANCH }}
+
 
     - name: Load custom feeds
       run: |
