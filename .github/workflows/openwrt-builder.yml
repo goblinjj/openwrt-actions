@@ -36,17 +36,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    # 新增缓存恢复步骤
-    - name: Restore OpenWrt source cache
-      id: cache-openwrt
-      uses: actions/cache@v3
-      with:
-        path: /workdir/openwrt  # 缓存目录路径
-        key: openwrt-source-${{ hashFiles('diy-part1.sh') }}-${{ env.REPO_BRANCH }}
-
-
     - name: Initialization environment
-      if: steps.cache-openwrt.outputs.cache-hit != 'true'  # 缓存未命中时才执行初始化
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
@@ -61,19 +51,11 @@ jobs:
         sudo chown $USER:$GROUPS /workdir
 
     - name: Clone source code
-      if: steps.cache-openwrt.outputs.cache-hit != 'true'  # 缓存未命中时才执行初始化
       working-directory: /workdir
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-
-    - name: Save OpenWrt source cache
-      if: steps.cache-openwrt.outputs.cache-hit != 'true'  # 仅在缓存未命中时保存
-      uses: actions/cache@v3
-      with:
-        path: /workdir/openwrt
-        key: openwrt-source-${{ hashFiles('diy-part1.sh') }}-${{ env.REPO_BRANCH }}
 
     - name: Load custom feeds
       run: |
@@ -139,8 +121,6 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        ls
-        echo "-----"
         ls openwrt
         echo "-----"
         ls openwrt/target
